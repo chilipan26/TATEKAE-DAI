@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>立替金精算</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:      #1a1a2e;
+      --ink-sub:  #5a5a7a;
+      --surface:  #ffffff;
+      --bg:       #F5F5F3;
+      --line:     #e2e2ec;
+      --gray-hdr: #AEADA8;
+      --amber:    #E8A020;
+      --amber-lt: #FDF5E6;
+      --amber-brd:#F0D090;
+      --amber-txt:#7A5010;
+      --ok:       #2ec4b6;
+      --ng:       #e63946;
+      --radius:   14px;
+    }
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      font-size: 16px;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .header {
+      background: var(--gray-hdr);
+      color: #fff;
+      padding: 22px 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-label { font-size: 12px; letter-spacing: .12em; opacity: .85; text-transform: uppercase; margin-bottom: 4px; }
+    .header-title { font-size: 22px; font-weight: 700; letter-spacing: .03em; }
+    main { padding: 16px 16px 64px; max-width: 520px; margin: 0 auto; }
+
+    /* ログインバッジ */
+    .login-badge {
+      border-radius: 10px; padding: 8px 11px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px;
+      background: var(--amber-lt); border: 0.5px solid var(--amber-brd); color: var(--amber-txt);
+    }
+    .login-badge.err { background: #fff0f1; border-color: #f5c4c4; color: var(--ng); }
+
+    /* アイテムカード */
+    .item-card {
+      background: var(--surface);
+      border: 1.5px solid var(--amber-brd);
+      border-radius: var(--radius);
+      padding: 16px 15px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .item-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .item-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--amber);
+    }
+    .remove-btn {
+      font-size: 12px; font-weight: 700;
+      color: var(--ng); background: #fff0f1;
+      border: none; border-radius: 6px;
+      padding: 4px 10px; cursor: pointer;
+    }
+
+    /* フィールド */
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--ink-sub); margin-bottom: 6px;
+    }
+    label .req { color: var(--ng); margin-left: 3px; }
+    input[type="date"], input[type="text"], input[type="number"], select {
+      width: 100%; padding: 13px 11px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px; font-size: 16px; font-family: inherit;
+      color: var(--ink); background: var(--surface);
+      appearance: none; -webkit-appearance: none;
+      transition: border-color .15s; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--amber); }
+    input.has-error, select.has-error { border-color: var(--ng) !important; }
+    .field-error { font-size: 12px; color: var(--ng); margin-top: 5px; display: none; }
+    .field-error.visible { display: block; }
+
+    /* 金額 */
+    .amount-input {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+    }
+
+    /* 区間フィールド */
+    .route-block {
+      display: none;
+      background: var(--amber-lt);
+      border: 0.5px solid var(--amber-brd);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+      gap: 8px;
+    }
+    .route-block.visible { display: flex; align-items: center; gap: 8px; }
+    .route-block input { flex: 1; font-size: 14px !important; padding: 10px 10px !important; }
+    .route-sep { color: var(--amber-txt); font-weight: 700; flex-shrink: 0; }
+
+    /* 画像アップロード */
+    .upload-area {
+      border: 2px dashed var(--amber-brd);
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--amber-lt);
+      transition: background .15s;
+      position: relative;
+    }
+    .upload-area:active { background: #f5e8cc; }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      width: 100%; height: 100%; cursor: pointer;
+      border: none; padding: 0;
+    }
+    .upload-label { font-size: 13px; font-weight: 600; color: var(--amber-txt); pointer-events: none; }
+    .preview-img {
+      width: 100%; max-height: 200px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 1px solid var(--amber-brd);
+      display: none;
+    }
+
+    /* 追加ボタン */
+    .add-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--surface);
+      border: 2px dashed var(--amber);
+      border-radius: var(--radius);
+      font-size: 15px; font-weight: 700;
+      color: var(--amber);
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: background .15s;
+    }
+    .add-btn:active { background: var(--amber-lt); }
+
+    /* 送信ボタン */
+    .submit-btn {
+      width: 100%; padding: 17px;
+      border: none; border-radius: var(--radius);
+      font-size: 17px; font-weight: 700; font-family: inherit;
+      letter-spacing: .04em; cursor: pointer;
+      background: var(--amber); color: #fff;
+      transition: opacity .15s;
+    }
+    .submit-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* グローバルエラー */
+    .global-error {
+      display: none; background: #fff0f1;
+      border: 1.5px solid var(--ng);
+      border-radius: 10px; padding: 11px 13px;
+      font-size: 13px; color: var(--ng); font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .global-error.visible { display: block; }
+
+    /* 成功画面 */
+    #successScreen {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 70vh; text-align: center; padding: 32px 24px;
+    }
+    #successScreen.visible { display: flex; }
+    .success-icon {
+      width: 88px; height: 88px; background: var(--ok);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin-bottom: 28px;
+    }
+    .success-icon svg { width: 44px; height: 44px; }
+    .success-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+    .success-sub { font-size: 15px; color: var(--ink-sub); line-height: 1.8; }
+
+    /* ローディング */
+    #loadingScreen {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; flex-direction: column; gap: 16px;
+    }
+    #loadingScreen.hidden { display: none; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--line); border-top-color: var(--gray-hdr);
+      border-radius: 50%; animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 15px; color: var(--ink-sub); }
+  </style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="loading-text">読み込み中…</div>
+</div>
+
+<div id="successScreen">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="success-title">送信完了しました</div>
+  <div class="success-sub">立替金精算の申請が<br>完了しました。<br>ありがとうございます！</div>
+</div>
+
+<div id="formWrap">
+  <header class="header">
+    <div class="header-label">Event Staff</div>
+    <div class="header-title">立替金精算</div>
+  </header>
+
+  <main>
+    <div class="login-badge" id="loginBadge">
+      <span>👤</span><span id="loginName">読み込み中…</span>
+    </div>
+
+    <div id="globalError" class="global-error">入力に不備があります。確認してください。</div>
+
+    <div id="itemsContainer"></div>
+
+    <button class="add-btn" type="button" onclick="addItem()">＋ 項目を追加する</button>
+    <button class="submit-btn" id="submitBtn" type="button" onclick="submitForm()">送信する</button>
+  </main>
+</div>
+
+<script>
+const LIFF_ID  = '2010311386-7tC3rJld';
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyVJhW0TLkyq-WUgDGBxnAF55AX8tu-UdkrXnYLEHcGQzIEt0j3xeExv0OHgm74-UwFNQ/exec';
+
+let lineUserId   = '';
+let displayName  = '';
+let resolvedName = '';
+let itemCount    = 0;
+
+// ============================================================
+// LIFF初期化
+// ============================================================
+async function initLiff() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    const profile = await liff.getProfile();
+    lineUserId  = profile.userId;
+    displayName = profile.displayName;
+
+    const res  = await fetch(GAS_URL + '?action=getName&userId=' + encodeURIComponent(lineUserId));
+    const data = await res.json();
+    if (data.name) {
+      resolvedName = data.name;
+      setLoginText(resolvedName + ' としてログイン中', false);
+    } else {
+      resolvedName = displayName;
+      setLoginText(displayName + '（未登録）', true);
+    }
+  } catch (err) {
+    console.error(err);
+    lineUserId   = 'DEV_USER';
+    displayName  = 'DEV_NAME';
+    resolvedName = 'テスト太郎';
+    setLoginText(resolvedName + ' としてログイン中', false);
+  } finally {
+    document.getElementById('loadingScreen').classList.add('hidden');
+    addItem(); // 最初の1件を自動追加
+  }
+}
+
+function setLoginText(text, isErr) {
+  document.getElementById('loginName').textContent = text;
+  if (isErr) document.getElementById('loginBadge').classList.add('err');
+}
+
+// ============================================================
+// アイテム追加
+// ============================================================
+function addItem() {
+  itemCount++;
+  const n = itemCount;
+  const html = `
+    <div class="item-card" id="item_${n}">
+      <div class="item-header">
+        <div class="item-label">ITEM ${String(n).padStart(2,'0')}</div>
+        ${n > 1 ? `<button class="remove-btn" type="button" onclick="removeItem(${n})">✕ 削除</button>` : ''}
+      </div>
+
+      <div class="field">
+        <label>領収書画像</label>
+        <div class="upload-area" id="uploadArea_${n}">
+          <input type="file" accept="image/*" onchange="handleImage(this, ${n})">
+          <div class="upload-label" id="uploadLabel_${n}">📎 画像を選択する</div>
+          <img class="preview-img" id="preview_${n}">
+        </div>
+        <input type="hidden" id="fileData_${n}">
+      </div>
+
+      <div class="field">
+        <label for="date_${n}">勤務日<span class="req">*</span></label>
+        <input type="date" id="date_${n}">
+        <div class="field-error" id="errDate_${n}">勤務日を選択してください</div>
+      </div>
+
+      <div class="field">
+        <label for="purpose_${n}">用途<span class="req">*</span></label>
+        <select id="purpose_${n}" onchange="onPurposeChange(${n})">
+          <option value="" disabled selected>選択してください</option>
+          <option value="駐車場代">駐車場代</option>
+          <option value="ガソリン代">ガソリン代</option>
+          <option value="ETC代">ETC代</option>
+          <option value="備品代">備品代</option>
+          <option value="ホテル代">ホテル代</option>
+          <option value="新幹線代">新幹線代</option>
+          <option value="電車代">電車代</option>
+          <option value="その他">その他</option>
+        </select>
+        <div class="field-error" id="errPurpose_${n}">用途を選択してください</div>
+        <div class="route-block" id="routeBlock_${n}">
+          <input type="text" id="routeFrom_${n}" placeholder="乗車駅">
+          <span class="route-sep">〜</span>
+          <input type="text" id="routeTo_${n}" placeholder="降車駅">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="amount_${n}">金額（円）<span class="req">*</span></label>
+        <input type="number" id="amount_${n}" class="amount-input" placeholder="0" inputmode="numeric" min="0">
+        <div class="field-error" id="errAmount_${n}">金額を入力してください</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('itemsContainer').insertAdjacentHTML('beforeend', html);
+}
+
+function removeItem(n) {
+  const el = document.getElementById('item_' + n);
+  if (el) el.remove();
+}
+
+function onPurposeChange(n) {
+  const val = document.getElementById('purpose_' + n).value;
+  const block = document.getElementById('routeBlock_' + n);
+  if (val === '新幹線代' || val === '電車代') {
+    block.classList.add('visible');
+  } else {
+    block.classList.remove('visible');
+    document.getElementById('routeFrom_' + n).value = '';
+    document.getElementById('routeTo_'   + n).value = '';
+  }
+}
+
+// ============================================================
+// 画像処理
+// ============================================================
+async function handleImage(input, n) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  document.getElementById('uploadLabel_' + n).textContent = '📎 ' + file.name;
+  const b64 = await compressImage(file);
+  document.getElementById('fileData_' + n).value = b64;
+  const preview = document.getElementById('preview_' + n);
+  preview.src = 'data:image/jpeg;base64,' + b64;
+  preview.style.display = 'block';
+}
+
+function compressImage(file, maxDim = 800) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = e => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; } }
+        else        { if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+      };
+    };
+    reader.onerror = reject;
+  });
+}
+
+// ============================================================
+// バリデーション & 送信
+// ============================================================
+function submitForm() {
+  let ok = true;
+  document.getElementById('globalError').classList.remove('visible');
+
+  const cards = document.querySelectorAll('.item-card');
+  if (!cards.length) {
+    document.getElementById('globalError').classList.add('visible');
+    return;
+  }
+
+  const items = [];
+
+  cards.forEach(card => {
+    const id = card.id.replace('item_', '');
+
+    const dateEl    = document.getElementById('date_'    + id);
+    const purposeEl = document.getElementById('purpose_' + id);
+    const amountEl  = document.getElementById('amount_'  + id);
+
+    let cardOk = true;
+
+    if (!dateEl.value) {
+      dateEl.classList.add('has-error');
+      document.getElementById('errDate_' + id).classList.add('visible');
+      cardOk = false;
+    } else {
+      dateEl.classList.remove('has-error');
+      document.getElementById('errDate_' + id).classList.remove('visible');
+    }
+
+    if (!purposeEl.value) {
+      purposeEl.classList.add('has-error');
+      document.getElementById('errPurpose_' + id).classList.add('visible');
+      cardOk = false;
+    } else {
+      purposeEl.classList.remove('has-error');
+      document.getElementById('errPurpose_' + id).classList.remove('visible');
+    }
+
+    if (!amountEl.value || Number(amountEl.value) <= 0) {
+      amountEl.classList.add('has-error');
+      document.getElementById('errAmount_' + id).classList.add('visible');
+      cardOk = false;
+    } else {
+      amountEl.classList.remove('has-error');
+      document.getElementById('errAmount_' + id).classList.remove('visible');
+    }
+
+    if (!cardOk) { ok = false; return; }
+
+    let route = '';
+    const purpose = purposeEl.value;
+    if (purpose === '新幹線代' || purpose === '電車代') {
+      const from = document.getElementById('routeFrom_' + id).value;
+      const to   = document.getElementById('routeTo_'   + id).value;
+      if (from || to) route = from + ' 〜 ' + to;
+    }
+
+    items.push({
+      date:     dateEl.value,
+      purpose:  purpose,
+      amount:   amountEl.value,
+      route:    route,
+      fileData: document.getElementById('fileData_' + id).value || null,
+      mimeType: 'image/jpeg',
+    });
+  });
+
+  if (!ok) {
+    document.getElementById('globalError').classList.add('visible');
+    return;
+  }
+
+  const payload = {
+    action:      'submitReimbursement',
+    lineUserId,
+    displayName,
+    staffName:   resolvedName,
+    timestamp:   new Date().toISOString(),
+    items,
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('successScreen').classList.add('visible');
+    } else { throw new Error(data.message || 'error'); }
+  })
+  .catch(err => {
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = '送信する';
+    alert('送信に失敗しました。再度お試しください。');
+  });
+}
+
+initLiff();
+</script>
+</body>
+</html>
