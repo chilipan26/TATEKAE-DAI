@@ -42,7 +42,6 @@
     .header-title { font-size: 22px; font-weight: 700; letter-spacing: .03em; }
     main { padding: 16px 16px 64px; max-width: 520px; margin: 0 auto; }
 
-    /* ログインバッジ */
     .login-badge {
       border-radius: 10px; padding: 8px 11px;
       font-size: 12px; font-weight: 600;
@@ -52,7 +51,6 @@
     }
     .login-badge.err { background: #fff0f1; border-color: #f5c4c4; color: var(--ng); }
 
-    /* アイテムカード */
     .item-card {
       background: var(--surface);
       border: 1.5px solid var(--amber-brd);
@@ -76,7 +74,6 @@
       padding: 4px 10px; cursor: pointer;
     }
 
-    /* フィールド */
     .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
     label {
@@ -97,13 +94,11 @@
     .field-error { font-size: 12px; color: var(--ng); margin-top: 5px; display: none; }
     .field-error.visible { display: block; }
 
-    /* 金額 */
     .amount-input {
       font-size: 22px !important;
       font-weight: 700 !important;
     }
 
-    /* 区間フィールド */
     .route-block {
       display: none;
       background: var(--amber-lt);
@@ -117,7 +112,6 @@
     .route-block input { flex: 1; font-size: 14px !important; padding: 10px 10px !important; }
     .route-sep { color: var(--amber-txt); font-weight: 700; flex-shrink: 0; }
 
-    /* 画像アップロード */
     .upload-area {
       border: 2px dashed var(--amber-brd);
       border-radius: 10px;
@@ -144,7 +138,6 @@
       display: none;
     }
 
-    /* 追加ボタン */
     .add-btn {
       width: 100%;
       padding: 15px;
@@ -159,7 +152,6 @@
     }
     .add-btn:active { background: var(--amber-lt); }
 
-    /* 送信ボタン */
     .submit-btn {
       width: 100%; padding: 17px;
       border: none; border-radius: var(--radius);
@@ -170,7 +162,6 @@
     }
     .submit-btn:disabled { opacity: .55; cursor: not-allowed; }
 
-    /* グローバルエラー */
     .global-error {
       display: none; background: #fff0f1;
       border: 1.5px solid var(--ng);
@@ -180,7 +171,6 @@
     }
     .global-error.visible { display: block; }
 
-    /* 成功画面 */
     #successScreen {
       display: none; flex-direction: column;
       align-items: center; justify-content: center;
@@ -196,7 +186,6 @@
     .success-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
     .success-sub { font-size: 15px; color: var(--ink-sub); line-height: 1.8; }
 
-    /* ローディング */
     #loadingScreen {
       position: fixed; inset: 0; background: var(--bg);
       display: flex; align-items: center; justify-content: center;
@@ -250,17 +239,16 @@
 </div>
 
 <script>
-const LIFF_ID  = '2010311386-7tC3rJld';
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyVJhW0TLkyq-WUgDGBxnAF55AX8tu-UdkrXnYLEHcGQzIEt0j3xeExv0OHgm74-UwFNQ/exec';
+// ★ 修正①：LIFF ID（末尾を大文字の「I」に修正）
+const LIFF_ID  = '2010311386-7tC3rJId';
+// ★ 修正②：GAS URL（正しいURLに修正）
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbx9UgS0ONyYF1vERcXxzsNXE8e9h4ODuBLc1m6KKkoY7FdGcpuaBePDd-fsiQVWVH3abQ/exec';
 
 let lineUserId   = '';
 let displayName  = '';
 let resolvedName = '';
 let itemCount    = 0;
 
-// ============================================================
-// LIFF初期化
-// ============================================================
 async function initLiff() {
   try {
     await liff.init({ liffId: LIFF_ID });
@@ -286,7 +274,7 @@ async function initLiff() {
     setLoginText(resolvedName + ' としてログイン中', false);
   } finally {
     document.getElementById('loadingScreen').classList.add('hidden');
-    addItem(); // 最初の1件を自動追加
+    addItem();
   }
 }
 
@@ -295,9 +283,6 @@ function setLoginText(text, isErr) {
   if (isErr) document.getElementById('loginBadge').classList.add('err');
 }
 
-// ============================================================
-// アイテム追加
-// ============================================================
 function addItem() {
   itemCount++;
   const n = itemCount;
@@ -372,9 +357,6 @@ function onPurposeChange(n) {
   }
 }
 
-// ============================================================
-// 画像処理
-// ============================================================
 async function handleImage(input, n) {
   if (!input.files.length) return;
   const file = input.files[0];
@@ -407,9 +389,6 @@ function compressImage(file, maxDim = 800) {
   });
 }
 
-// ============================================================
-// バリデーション & 送信
-// ============================================================
 function submitForm() {
   let ok = true;
   document.getElementById('globalError').classList.remove('visible');
