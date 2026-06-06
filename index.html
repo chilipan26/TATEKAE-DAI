@@ -254,18 +254,10 @@ async function initLiff() {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
     const profile = await liff.getProfile();
-    lineUserId  = profile.userId;
-    displayName = profile.displayName;
-
-    const res  = await fetch(GAS_URL + '?action=getName&userId=' + encodeURIComponent(lineUserId));
-    const data = await res.json();
-    if (data.name) {
-      resolvedName = data.name;
-      setLoginText(resolvedName + ' としてログイン中', false);
-    } else {
-      resolvedName = displayName;
-      setLoginText(displayName + '（未登録）', true);
-    }
+    lineUserId   = profile.userId;
+    displayName  = profile.displayName;
+    resolvedName = profile.displayName;
+    setLoginText(displayName + ' としてログイン中', false);
   } catch (err) {
     console.error(err);
     lineUserId   = 'DEV_USER';
