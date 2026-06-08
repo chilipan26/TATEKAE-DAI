@@ -55,33 +55,32 @@
       background: var(--surface);
       border: 1.5px solid var(--amber-brd);
       border-radius: var(--radius);
-      padding: 16px 15px;
+      padding: 15px 14px;
       margin-bottom: 12px;
-      position: relative;
     }
     .item-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .item-label {
       font-size: 11px; font-weight: 700; letter-spacing: .12em;
       text-transform: uppercase; color: var(--amber);
     }
-    .remove-btn {
+    .remove-card-btn {
       font-size: 12px; font-weight: 700;
       color: var(--ng); background: #fff0f1;
-      border: none; border-radius: 6px;
+      border: 1.5px solid #f5c4c4; border-radius: 6px;
       padding: 4px 10px; cursor: pointer;
     }
 
-    .field { margin-bottom: 14px; }
+    .field { margin-bottom: 12px; }
     .field:last-child { margin-bottom: 0; }
     label {
       display: block; font-size: 13px; font-weight: 600;
       color: var(--ink-sub); margin-bottom: 6px;
     }
     label .req { color: var(--ng); margin-left: 3px; }
-    input[type="date"], input[type="text"], input[type="number"], select {
+    input[type="date"] {
       width: 100%; padding: 13px 11px;
       border: 1.5px solid var(--line);
       border-radius: 10px; font-size: 16px; font-family: inherit;
@@ -89,28 +88,61 @@
       appearance: none; -webkit-appearance: none;
       transition: border-color .15s; outline: none;
     }
-    input:focus, select:focus { border-color: var(--amber); }
-    input.has-error, select.has-error { border-color: var(--ng) !important; }
+    input[type="date"]:focus { border-color: var(--amber); }
+    input.has-error { border-color: var(--ng) !important; }
     .field-error { font-size: 12px; color: var(--ng); margin-top: 5px; display: none; }
     .field-error.visible { display: block; }
 
-    .amount-input {
-      font-size: 22px !important;
-      font-weight: 700 !important;
-    }
-
-    .route-block {
-      display: none;
-      background: var(--amber-lt);
-      border: 0.5px solid var(--amber-brd);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 8px;
+    .row-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 28px;
       gap: 8px;
+      margin-bottom: 4px;
     }
-    .route-block.visible { display: flex; align-items: center; gap: 8px; }
-    .route-block input { flex: 1; font-size: 14px !important; padding: 10px 10px !important; }
-    .route-sep { color: var(--amber-txt); font-weight: 700; flex-shrink: 0; }
+    .cell-label { font-size: 12px; font-weight: 600; color: var(--ink-sub); }
+
+    .rows-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .row-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr 28px;
+      gap: 8px;
+      align-items: center;
+    }
+    select.row-select {
+      width: 100%; padding: 11px 8px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px; font-size: 13px; font-family: inherit;
+      color: var(--ink); background: var(--surface);
+      appearance: none; -webkit-appearance: none;
+      outline: none; transition: border-color .15s;
+    }
+    select.row-select:focus { border-color: var(--amber); }
+    select.row-select.has-error { border-color: var(--ng) !important; }
+    input.row-amount {
+      width: 100%; padding: 11px 8px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit;
+      color: var(--ink); background: var(--surface);
+      outline: none; transition: border-color .15s;
+      -moz-appearance: textfield;
+      height: 44px;
+    }
+    select.row-select {
+      height: 44px;
+    }
+    input.row-amount::-webkit-outer-spin-button,
+    input.row-amount::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input.row-amount:focus { border-color: var(--amber); }
+    input.row-amount.has-error { border-color: var(--ng) !important; }
+
+    .remove-row-btn {
+      width: 28px; height: 28px;
+      background: #fff0f1; border: 1.5px solid #f5c4c4;
+      border-radius: 6px; color: var(--ng);
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
 
     .upload-area {
       border: 2px dashed var(--amber-brd);
@@ -121,6 +153,7 @@
       background: var(--amber-lt);
       transition: background .15s;
       position: relative;
+      margin-bottom: 12px;
     }
     .upload-area:active { background: #f5e8cc; }
     .upload-area input[type="file"] {
@@ -138,7 +171,18 @@
       display: none;
     }
 
-    .add-btn {
+    .add-row-btn {
+      width: 100%; padding: 10px;
+      background: var(--surface);
+      border: 1.5px dashed var(--amber-brd);
+      border-radius: 8px; font-size: 13px; font-weight: 700;
+      color: var(--amber-txt); cursor: pointer;
+      transition: background .15s;
+      margin-bottom: 0;
+    }
+    .add-row-btn:active { background: var(--amber-lt); }
+
+    .add-card-btn {
       width: 100%;
       padding: 15px;
       background: var(--surface);
@@ -150,7 +194,7 @@
       margin-bottom: 14px;
       transition: background .15s;
     }
-    .add-btn:active { background: var(--amber-lt); }
+    .add-card-btn:active { background: var(--amber-lt); }
 
     .submit-btn {
       width: 100%; padding: 17px;
@@ -233,21 +277,22 @@
 
     <div id="itemsContainer"></div>
 
-    <button class="add-btn" type="button" onclick="addItem()">＋ 項目を追加する</button>
+    <button class="add-card-btn" id="addCardBtn" type="button" onclick="addCard()">＋ 別日を入力する</button>
     <button class="submit-btn" id="submitBtn" type="button" onclick="submitForm()">送信する</button>
   </main>
 </div>
 
 <script>
-// ★ 修正①：LIFF ID（末尾を大文字の「I」に修正）
-const LIFF_ID  = '2010311386-7tC3rJId';
-// ★ 修正②：GAS URL（正しいURLに修正）
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbwrYHlNA3gLdI8TTVx1KioLiHddErUkrv7dAXhRdpJ0nDe7Aw2iRLtmmOl04_6RVdr6TA/exec';
+const LIFF_ID = '2010311386-7tC3rJId';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwrYHlNA3gLdI8TTVx1KioLiHddErUkrv7dAXhRdpJ0nDe7Aw2iRLtmmOl04_6RVdr6TA/exec';
 
 let lineUserId   = '';
 let displayName  = '';
 let resolvedName = '';
-let itemCount    = 0;
+let cardCount    = 0;
+
+const purposes = ['駐車場代','ガソリン代','ETC代','備品代','ホテル代','新幹線代','電車代','その他'];
+const opts = purposes.map(p => `<option value="${p}">${p}</option>`).join('');
 
 async function initLiff() {
   try {
@@ -266,7 +311,7 @@ async function initLiff() {
     setLoginText(resolvedName + ' としてログイン中', false);
   } finally {
     document.getElementById('loadingScreen').classList.add('hidden');
-    addItem();
+    addCard();
   }
 }
 
@@ -275,78 +320,81 @@ function setLoginText(text, isErr) {
   if (isErr) document.getElementById('loginBadge').classList.add('err');
 }
 
-function addItem() {
-  itemCount++;
-  const n = itemCount;
+function addCard() {
+  cardCount++;
+  const n = cardCount;
   const html = `
-    <div class="item-card" id="item_${n}">
+    <div class="item-card" id="card_${n}">
       <div class="item-header">
         <div class="item-label">ITEM ${String(n).padStart(2,'0')}</div>
-        ${n > 1 ? `<button class="remove-btn" type="button" onclick="removeItem(${n})">✕ 削除</button>` : ''}
+        ${n > 1 ? `<button class="remove-card-btn" type="button" onclick="removeCard(${n})">✕ 削除</button>` : ''}
       </div>
 
-      <div class="field">
-        <label>領収書画像</label>
-        <div class="upload-area" id="uploadArea_${n}">
-          <input type="file" accept="image/*" onchange="handleImage(this, ${n})">
-          <div class="upload-label" id="uploadLabel_${n}">📎 画像を選択する</div>
-          <img class="preview-img" id="preview_${n}">
-        </div>
+      <div class="upload-area">
+        <input type="file" accept="image/*" onchange="handleImage(this,${n})">
+        <div class="upload-label" id="uploadLabel_${n}">📎 画像を選択する</div>
+        <img class="preview-img" id="preview_${n}">
         <input type="hidden" id="fileData_${n}">
       </div>
 
       <div class="field">
-        <label for="date_${n}">勤務日<span class="req">*</span></label>
+        <label>勤務日<span class="req">*</span></label>
         <input type="date" id="date_${n}">
         <div class="field-error" id="errDate_${n}">勤務日を選択してください</div>
       </div>
 
-      <div class="field">
-        <label for="purpose_${n}">用途<span class="req">*</span></label>
-        <select id="purpose_${n}" onchange="onPurposeChange(${n})">
-          <option value="" disabled selected>選択してください</option>
-          <option value="駐車場代">駐車場代</option>
-          <option value="ガソリン代">ガソリン代</option>
-          <option value="ETC代">ETC代</option>
-          <option value="備品代">備品代</option>
-          <option value="ホテル代">ホテル代</option>
-          <option value="新幹線代">新幹線代</option>
-          <option value="電車代">電車代</option>
-          <option value="その他">その他</option>
-        </select>
-        <div class="field-error" id="errPurpose_${n}">用途を選択してください</div>
-        <div class="route-block" id="routeBlock_${n}">
-          <input type="text" id="routeFrom_${n}" placeholder="乗車駅">
-          <span class="route-sep">〜</span>
-          <input type="text" id="routeTo_${n}" placeholder="降車駅">
-        </div>
+      <div class="row-header">
+        <div class="cell-label">用途<span class="req" style="color:var(--ng);margin-left:3px;">*</span></div>
+        <div class="cell-label">金額（円）<span class="req" style="color:var(--ng);margin-left:3px;">*</span></div>
+        <div></div>
       </div>
 
-      <div class="field">
-        <label for="amount_${n}">金額（円）<span class="req">*</span></label>
-        <input type="number" id="amount_${n}" class="amount-input" placeholder="0" inputmode="numeric" min="0">
-        <div class="field-error" id="errAmount_${n}">金額を入力してください</div>
-      </div>
+      <div class="rows-container" id="rows_${n}"></div>
+      <div class="field-error" id="errRows_${n}" style="margin-bottom:8px;">少なくとも1行入力してください</div>
+
+      <button class="add-row-btn" type="button" onclick="addRow(${n})">＋ 行を追加する</button>
     </div>
   `;
   document.getElementById('itemsContainer').insertAdjacentHTML('beforeend', html);
+  addRow(n);
+
 }
 
-function removeItem(n) {
-  const el = document.getElementById('item_' + n);
+function addRow(cardId) {
+  const container = document.getElementById('rows_' + cardId);
+  const rowId = Date.now() + '_' + Math.random().toString(36).slice(2);
+  const html = `
+    <div class="row-pair" id="row_${rowId}">
+      <select class="row-select" id="purpose_${rowId}">
+        <option value="" disabled selected>選択</option>
+        ${opts}
+      </select>
+      <input type="text" inputmode="numeric" class="row-amount" id="amount_${rowId}" placeholder="0">
+      <button class="remove-row-btn" type="button" onclick="removeRow('${rowId}', ${cardId})">✕</button>
+    </div>
+  `;
+  container.insertAdjacentHTML('beforeend', html);
+  updateFirstRowBtn(cardId);
+}
+
+function removeRow(rowId, cardId) {
+  const el = document.getElementById('row_' + rowId);
   if (el) el.remove();
+  updateFirstRowBtn(cardId);
 }
 
-function onPurposeChange(n) {
-  const val = document.getElementById('purpose_' + n).value;
-  const block = document.getElementById('routeBlock_' + n);
-  if (val === '新幹線代' || val === '電車代') {
-    block.classList.add('visible');
-  } else {
-    block.classList.remove('visible');
-    document.getElementById('routeFrom_' + n).value = '';
-    document.getElementById('routeTo_'   + n).value = '';
-  }
+function updateFirstRowBtn(cardId) {
+  const container = document.getElementById('rows_' + cardId);
+  const rows = container.querySelectorAll('.row-pair');
+  rows.forEach((row, i) => {
+    const btn = row.querySelector('.remove-row-btn');
+    if (btn) btn.style.visibility = (i === 0 && rows.length === 1) ? 'hidden' : 'visible';
+  });
+}
+
+function removeCard(n) {
+  const el = document.getElementById('card_' + n);
+  if (el) el.remove();
 }
 
 async function handleImage(input, n) {
@@ -394,63 +442,61 @@ function submitForm() {
   const items = [];
 
   cards.forEach(card => {
-    const id = card.id.replace('item_', '');
+    const id = card.id.replace('card_', '');
 
-    const dateEl    = document.getElementById('date_'    + id);
-    const purposeEl = document.getElementById('purpose_' + id);
-    const amountEl  = document.getElementById('amount_'  + id);
-
-    let cardOk = true;
-
+    // 勤務日バリデーション
+    const dateEl = document.getElementById('date_' + id);
     if (!dateEl.value) {
       dateEl.classList.add('has-error');
       document.getElementById('errDate_' + id).classList.add('visible');
-      cardOk = false;
+      ok = false;
     } else {
       dateEl.classList.remove('has-error');
       document.getElementById('errDate_' + id).classList.remove('visible');
     }
 
-    if (!purposeEl.value) {
-      purposeEl.classList.add('has-error');
-      document.getElementById('errPurpose_' + id).classList.add('visible');
-      cardOk = false;
-    } else {
-      purposeEl.classList.remove('has-error');
-      document.getElementById('errPurpose_' + id).classList.remove('visible');
-    }
+    // 行バリデーション（少なくとも1行有効）
+    const container = document.getElementById('rows_' + id);
+    const rows = container.querySelectorAll('.row-pair');
+    let hasValidRow = false;
 
-    if (!amountEl.value || Number(amountEl.value) <= 0) {
-      amountEl.classList.add('has-error');
-      document.getElementById('errAmount_' + id).classList.add('visible');
-      cardOk = false;
-    } else {
-      amountEl.classList.remove('has-error');
-      document.getElementById('errAmount_' + id).classList.remove('visible');
-    }
+    rows.forEach(row => {
+      const rowId = row.id.replace('row_', '');
+      const purposeEl = document.getElementById('purpose_' + rowId);
+      const amountEl  = document.getElementById('amount_'  + rowId);
+      const pVal = purposeEl ? purposeEl.value : '';
+      const aVal = amountEl  ? amountEl.value.trim() : '';
 
-    if (!cardOk) { ok = false; return; }
+      // 空行はスキップ
+      if (!pVal && !aVal) return;
 
-    let route = '';
-    const purpose = purposeEl.value;
-    if (purpose === '新幹線代' || purpose === '電車代') {
-      const from = document.getElementById('routeFrom_' + id).value;
-      const to   = document.getElementById('routeTo_'   + id).value;
-      if (from || to) route = from + ' 〜 ' + to;
-    }
-
-    items.push({
-      date:     dateEl.value,
-      purpose:  purpose,
-      amount:   amountEl.value,
-      route:    route,
-      fileData: document.getElementById('fileData_' + id).value || null,
-      mimeType: 'image/jpeg',
+      if (pVal && aVal && Number(aVal) > 0) {
+        hasValidRow = true;
+        items.push({
+          date:     dateEl.value,
+          purpose:  pVal,
+          amount:   aVal,
+          fileData: document.getElementById('fileData_' + id).value || null,
+          mimeType: 'image/jpeg',
+        });
+      } else {
+        ok = false;
+        if (purposeEl) purposeEl.classList.add('has-error');
+        if (amountEl)  amountEl.classList.add('has-error');
+      }
     });
+
+    if (!hasValidRow) {
+      document.getElementById('errRows_' + id).classList.add('visible');
+      ok = false;
+    } else {
+      document.getElementById('errRows_' + id).classList.remove('visible');
+    }
   });
 
   if (!ok) {
     document.getElementById('globalError').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
 
